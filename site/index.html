@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PrivGuard</title>
+  <meta name="description" content="ML-based privileged-activity anomaly detection inspired by CyberArk PTA: explainable risk scores for privileged logons, vault checkouts and session commands.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z' fill='%232a78d6'/></svg>">
+  <link rel="stylesheet" href="style.css">
+  <script>try { const t = localStorage.getItem('privguard-theme'); if (t) document.documentElement.dataset.theme = t; } catch { /* no storage */ }</script>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#top">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" fill="var(--accent)"/><path d="m8.5 12 2.5 2.5 4.5-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      PrivGuard
+    </a>
+    <div class="links">
+      <a href="#replay">Live replay</a>
+      <a href="#results">Results</a>
+      <a href="#how">How it works</a>
+      <a class="gh" id="gh-link" href="https://github.com/Harshitraiii2005/Privileged-Activity-Anomaly-Detector-PTA-style-">GitHub</a>
+      <button class="icon-btn" id="theme" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero wrap" id="top">
+  <div class="eyebrow">Privileged threat analytics · inspired by CyberArk PTA</div>
+  <h1>Catch privileged-account abuse, and say why.</h1>
+  <p class="sub">PrivGuard learns how every admin, user and service account normally behaves, scores each logon,
+    vault checkout and session command against that baseline, and explains every alert in one sentence an analyst can act on.</p>
+  <div class="cta">
+    <a class="btn primary" href="#replay">▶ Watch an attack get caught</a>
+    <a class="btn" id="gh-cta" href="https://github.com/Harshitraiii2005/Privileged-Activity-Anomaly-Detector-PTA-style-">View source</a>
+  </div>
+  <div class="stats" id="stats"></div>
+</header>
+
+<section id="replay">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Live attack replay</h2>
+      <p class="sub">A compromised admin account runs a four-step kill chain hidden in 90 minutes of ordinary company traffic.
+        Every score, severity and explanation below is the trained model's real output for these events.
+        The ground-truth labels are shown only for you; the model never sees them.</p>
+    </div>
+
+    <div class="card">
+      <div class="controls">
+        <button class="btn primary" id="play">▶ Play</button>
+        <button class="btn" id="restart">↺ Restart</button>
+        <label class="muted" for="speed" style="font-size:13px">Speed</label>
+        <select id="speed">
+          <option value="120">120×</option>
+          <option value="300" selected>300×</option>
+          <option value="1200">1200×</option>
+        </select>
+        <button class="btn" id="skip">Skip to end</button>
+        <span class="clock" id="clock">--:--:--</span>
+        <div class="counters">
+          <span>events <b id="c-events">0</b></span>
+          <span>alerts <b id="c-alerts">0</b></span>
+          <span>false alerts on other accounts <b id="c-fp">0</b></span>
+        </div>
+      </div>
+      <div class="progress"><div id="progress"></div></div>
+    </div>
+
+    <div class="steps" id="steps" aria-live="polite"></div>
+
+    <div class="grid-replay">
+      <div class="card">
+        <div class="card-h">
+          <h3>Risk score of every event</h3>
+          <div class="legend" id="sev-legend"></div>
+        </div>
+        <div class="card-b chart" id="timeline"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Event feed</h3><span class="muted" style="font-size:12px">newest first · click an alert</span></div>
+        <div class="feed" id="feed" style="margin-top:10px"><div class="empty">Press play to start the replay.</div></div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-h"><h3>Alert queue</h3><span class="muted" style="font-size:12px">riskiest first</span></div>
+        <div class="card-b queue-box table-wrap">
+          <table id="queue">
+            <thead><tr><th>Severity</th><th class="num">Risk</th><th>Time</th><th>Account</th><th>Event</th><th>Target</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty" id="queue-empty">No alerts yet.</div>
+        </div>
+      </div>
+      <div class="card detail">
+        <div class="card-h"><h3>Alert detail</h3></div>
+        <div class="card-b" id="detail"><div class="empty">Select an alert to see why it fired.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Results</h2>
+      <p class="sub" id="results-sub"></p>
+    </div>
+    <div class="card">
+      <div class="card-b table-wrap"><table id="metrics"></table></div>
+    </div>
+    <div class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-h"><h3>Event recall by attack type</h3><div class="legend" id="det-legend"></div></div>
+        <div class="card-b chart" id="recall-chart"></div>
+        <div class="card-b" style="padding-top:0">
+          <details><summary>Show as table</summary><div class="table-wrap"><table id="recall-table"></table></div></details>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Precision-recall on the attack period</h3></div>
+        <div class="card-b"><img class="shot" src="img/pr_curves.png" alt="Precision-recall curves for rules, Isolation Forest, autoencoder and hybrid detectors" loading="lazy"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-b">
+        <h3>How to read this</h3>
+        <ul class="notes">
+          <li><b>Rules win on precision and analyst workload, but they were written knowing the attack catalog.</b> Against techniques nobody wrote a rule for they would do worse. The ML detectors never see labels.</li>
+          <li><b>ML adds recall on volume-shaped attacks</b> such as lateral movement and vault checkout bursts, at the cost of a few extra benign alerts per day.</li>
+          <li><b>The served hybrid alerts when either the rules or the Isolation Forest alert</b>, giving the best recall and PR-AUC.</li>
+          <li><b>New source host is the hard case:</b> a single novelty signal sits inside benign hot-desking. Only the autoencoder (not served) flags it.</li>
+          <li>Synthetic data, 17 test incidents: one incident moves incident recall by about 6 points.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How it works</h2>
+      <p class="sub">The same feature code runs in training, evaluation and the live API, so there is no train/serve skew.</p>
+    </div>
+    <div class="pipeline">
+      <div class="card"><div class="k">1 · Ingest</div><h3>Canonical events</h3><p>Logons, vault checkouts and privileged-session commands from a simulated company or the LANL dataset, in one schema.</p></div>
+      <div class="card"><div class="k">2 · Baseline</div><h3>18 features</h3><p>Per-account profile (usual hosts, hours, commands) plus trailing-hour windows: fan-out, failures, checkouts, rare tokens.</p></div>
+      <div class="card"><div class="k">3 · Detect</div><h3>Rules + Isolation Forest</h3><p>PTA-style rules for precision, an unsupervised model for what nobody wrote a rule for, on one 0-100 risk scale.</p></div>
+      <div class="card"><div class="k">4 · Explain</div><h3>SHAP in plain English</h3><p>Rule reasons first, then the features that pushed the score up, written in the event's own context.</p></div>
+      <div class="card"><div class="k">5 · Triage</div><h3>API + SOC dashboard</h3><p>FastAPI scores events and stores alerts in SQLite; analysts mark true/false positives, which feed retraining.</p></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-h"><h3>CyberArk concepts, mapped</h3></div>
+      <div class="card-b table-wrap">
+        <table>
+          <thead><tr><th>CyberArk concept</th><th>PrivGuard</th></tr></thead>
+          <tbody>
+            <tr><td>PTA behavioural profiling (normal hours, normal machines)</td><td><code>hour_rarity</code>, known (account, host) pairs</td></tr>
+            <tr><td>Privileged access at irregular hours</td><td><code>OFF_HOURS_PRIV</code> rule</td></tr>
+            <tr><td>Privileged account used without Vault retrieval</td><td><code>UNMANAGED_ACCESS</code> rule, <code>no_checkout</code></td></tr>
+            <tr><td>Excessive credential retrieval from the Vault</td><td><code>VAULT_BURST</code> rule, <code>checkouts_1h</code></td></tr>
+            <tr><td>Risky commands in PSM / PSMP sessions</td><td><code>PRIV_CMD</code> rule, <code>cmd_rarity</code></td></tr>
+            <tr><td>Security events with a risk score, triaged by analysts</td><td>0-100 risk + severity, alert queue, TP/FP feedback</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">The SOC dashboard (Streamlit), after <code>make demo</code></h3>
+    <div class="gallery">
+      <figure><img class="shot" src="img/alert-queue.png" alt="Streamlit alert queue with KPI tiles" loading="lazy"><figcaption>Alert queue and KPIs</figcaption></figure>
+      <figure><img class="shot" src="img/alert-detail.png" alt="Alert detail with explanation, SHAP bars and feedback buttons" loading="lazy"><figcaption>Alert detail: explanation, SHAP contributions, analyst feedback</figcaption></figure>
+      <figure><img class="shot" src="img/risk-timeline.png" alt="Risk timeline for the compromised admin" loading="lazy"><figcaption>Risk timeline of the compromised admin</figcaption></figure>
+      <figure><img class="shot" src="img/demo-terminal.png" alt="Terminal output of make demo" loading="lazy"><figcaption><code>make demo</code> live terminal feed</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    PrivGuard is a learning project and is not affiliated with CyberArk. Data is synthetic; every number on this page is produced by the code in the
+    <a id="gh-foot" href="https://github.com/Harshitraiii2005/Privileged-Activity-Anomaly-Detector-PTA-style-">repository</a>
+    (<code>make evaluate</code>, <code>python -m privguard.export_site</code>).
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip"></div>
+<script src="app.js"></script>
+</body>
+</html>

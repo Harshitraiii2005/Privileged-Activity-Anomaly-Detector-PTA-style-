@@ -1,0 +1,54 @@
+# PrivGuard configuration. Relative paths resolve against this file's directory.
+# Point PRIVGUARD_CONFIG at another file to override.
+
+[paths]
+processed_dir = "data/processed"   # generated datasets (git-ignored)
+
+[synthetic]
+seed = 42
+start_date = "2026-01-05"          # a Monday, so day 0 is a workday
+days = 28
+n_humans = 60
+n_admins = 8
+n_service = 6
+n_servers = 20
+attack_start_day = 14              # days before this are clean baseline history
+
+[synthetic.attacks]                # number of injected incidents per attack type
+off_hours_admin = 4
+new_source_host = 4
+lateral_movement = 3
+checkout_burst = 3
+privilege_escalation = 4
+
+[lanl]
+auth_file = "data/raw/lanl/auth.txt.gz"
+redteam_file = "data/raw/lanl/redteam.txt.gz"
+start_time = 1                     # seconds since dataset epoch (LANL time starts at 1)
+end_time = 864000                  # first 10 days
+user_sample_rate = 0.05            # fraction of non-red-team users kept (red-team users always kept)
+chunksize = 2000000                # rows per pandas read chunk
+
+[model]
+artifact_path = "artifacts/scorer.joblib"   # trained serving bundle (git-ignored)
+reports_dir = "reports"                     # evaluation metrics + plots (committed)
+threshold_quantile = 0.99                   # alert threshold = this quantile of baseline scores (~1% baseline FPR)
+seed = 42
+
+[model.iforest]
+n_estimators = 200
+
+[model.autoencoder]
+hidden = 8
+epochs = 40
+lr = 0.001
+batch_size = 256
+
+[serving]
+db_path = "data/privguard.db"               # env PRIVGUARD_DB_PATH overrides
+api_url = "http://localhost:8000"           # env PRIVGUARD_API_URL overrides
+
+[serving.severity]                          # risk_score (0-100) lower bounds; below medium = low
+medium = 40
+high = 70
+critical = 90

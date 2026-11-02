@@ -1,0 +1,188 @@
+{
+  "dataset": "synthetic",
+  "split": {
+    "boundary": "2026-01-19 00:00:00",
+    "train_events": 6276,
+    "test_events": 6774,
+    "test_attack_events": 178,
+    "test_incidents": 17,
+    "test_days": 14
+  },
+  "threshold_quantile": 0.99,
+  "thresholds": {
+    "Rules": 0.4,
+    "IsolationForest": 0.6526990845752603,
+    "Autoencoder": 1.2403080463409424,
+    "Hybrid": 40.0
+  },
+  "detectors": {
+    "Rules": {
+      "precision": 0.8214285714285714,
+      "recall": 0.6460674157303371,
+      "f1": 0.7232704402515723,
+      "pr_auc": 0.63065020275366,
+      "fpr": 0.003790175864160097,
+      "incident_recall": 0.7647058823529411,
+      "incidents_detected": 13,
+      "incidents": 17,
+      "benign_alerts_per_day": 1.7857142857142858,
+      "alerts": 140,
+      "true_positives": 115,
+      "false_positives": 25
+    },
+    "IsolationForest": {
+      "precision": 0.5116279069767442,
+      "recall": 0.6179775280898876,
+      "f1": 0.559796437659033,
+      "pr_auc": 0.645559023238293,
+      "fpr": 0.015918738629472406,
+      "incident_recall": 0.35294117647058826,
+      "incidents_detected": 6,
+      "incidents": 17,
+      "benign_alerts_per_day": 7.5,
+      "alerts": 215,
+      "true_positives": 110,
+      "false_positives": 105
+    },
+    "Autoencoder": {
+      "precision": 0.5286885245901639,
+      "recall": 0.7247191011235955,
+      "f1": 0.6113744075829384,
+      "pr_auc": 0.7361346838198191,
+      "fpr": 0.017434808975136447,
+      "incident_recall": 0.5882352941176471,
+      "incidents_detected": 10,
+      "incidents": 17,
+      "benign_alerts_per_day": 8.214285714285714,
+      "alerts": 244,
+      "true_positives": 129,
+      "false_positives": 115
+    },
+    "Hybrid": {
+      "precision": 0.5222222222222223,
+      "recall": 0.7921348314606742,
+      "f1": 0.6294642857142857,
+      "pr_auc": 0.7478052448434903,
+      "fpr": 0.0195573074590661,
+      "incident_recall": 0.7647058823529411,
+      "incidents_detected": 13,
+      "incidents": 17,
+      "benign_alerts_per_day": 9.214285714285714,
+      "alerts": 270,
+      "true_positives": 141,
+      "false_positives": 129
+    }
+  },
+  "recall_by_attack": {
+    "checkout_burst": {
+      "Rules": {
+        "event_recall": 0.7551020408163265,
+        "incidents_detected": 3,
+        "incidents": 3
+      },
+      "IsolationForest": {
+        "event_recall": 0.7959183673469388,
+        "incidents_detected": 3,
+        "incidents": 3
+      },
+      "Autoencoder": {
+        "event_recall": 0.9591836734693877,
+        "incidents_detected": 3,
+        "incidents": 3
+      },
+      "Hybrid": {
+        "event_recall": 0.8571428571428571,
+        "incidents_detected": 3,
+        "incidents": 3
+      }
+    },
+    "lateral_movement": {
+      "Rules": {
+        "event_recall": 0.6493506493506493,
+        "incidents_detected": 3,
+        "incidents": 3
+      },
+      "IsolationForest": {
+        "event_recall": 0.922077922077922,
+        "incidents_detected": 3,
+        "incidents": 3
+      },
+      "Autoencoder": {
+        "event_recall": 1.0,
+        "incidents_detected": 3,
+        "incidents": 3
+      },
+      "Hybrid": {
+        "event_recall": 0.922077922077922,
+        "incidents_detected": 3,
+        "incidents": 3
+      }
+    },
+    "new_source_host": {
+      "Rules": {
+        "event_recall": 0.0,
+        "incidents_detected": 0,
+        "incidents": 4
+      },
+      "IsolationForest": {
+        "event_recall": 0.0,
+        "incidents_detected": 0,
+        "incidents": 4
+      },
+      "Autoencoder": {
+        "event_recall": 0.4166666666666667,
+        "incidents_detected": 4,
+        "incidents": 4
+      },
+      "Hybrid": {
+        "event_recall": 0.0,
+        "incidents_detected": 0,
+        "incidents": 4
+      }
+    },
+    "off_hours_admin": {
+      "Rules": {
+        "event_recall": 1.0,
+        "incidents_detected": 3,
+        "incidents": 3
+      },
+      "IsolationForest": {
+        "event_recall": 0.0,
+        "incidents_detected": 0,
+        "incidents": 3
+      },
+      "Autoencoder": {
+        "event_recall": 0.0,
+        "incidents_detected": 0,
+        "incidents": 3
+      },
+      "Hybrid": {
+        "event_recall": 1.0,
+        "incidents_detected": 3,
+        "incidents": 3
+      }
+    },
+    "privilege_escalation": {
+      "Rules": {
+        "event_recall": 0.52,
+        "incidents_detected": 4,
+        "incidents": 4
+      },
+      "IsolationForest": {
+        "event_recall": 0.0,
+        "incidents_detected": 0,
+        "incidents": 4
+      },
+      "Autoencoder": {
+        "event_recall": 0.0,
+        "incidents_detected": 0,
+        "incidents": 4
+      },
+      "Hybrid": {
+        "event_recall": 0.52,
+        "incidents_detected": 4,
+        "incidents": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+# API + dashboard from one image. `make up` / `make down`; `make demo-docker` replays the attack demo.
+x-app: &app
+  build: .
+  image: privguard:latest
+  restart: unless-stopped
+
+services:
+  api:
+    <<: *app
+    command: ["uvicorn", "privguard.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports: ["8000:8000"]
+    volumes: ["privguard-data:/data"]   # SQLite alert store survives restarts
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  dashboard:
+    <<: *app
+    command: ["streamlit", "run", "src/privguard/dashboard.py", "--server.port", "8501", "--server.address", "0.0.0.0",
+              "--server.headless", "true", "--browser.gatherUsageStats", "false"]
+    ports: ["8501:8501"]
+    environment:
+      PRIVGUARD_API_URL: http://api:8000   # talks to the API over HTTP only, never to SQLite
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  privguard-data:
